@@ -1,0 +1,17 @@
+TaskID,Description,Priority,PredictedPriority
+1,Fix login bug in website,High,Medium
+2,Write daily sales report,Medium,High
+3,Push code,High,High
+3,Implement search filter,High,High
+4,Design new user interface,Low,Low
+5,Deploy backend API,High,High
+6,Buy groceries on the way home,Low,Low
+7,Complete team's weekly report,Low,Low
+8,Prepare slides for tomorrow's meeting,Medium,Medium
+9,Schedule dentist appointment,Medium,Medium
+1,Submit report,High,High
+2,Fix bug,Medium,Medium
+3,Call client,Low,Low
+4,Prepare presentation,High,High
+5,Organize files,Low,High
+6,Team meeting notes,Medium,Medium
