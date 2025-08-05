@@ -16,7 +16,7 @@ import json
 api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("models/gemini-1.5-flash")
+model = genai.GenerativeModel("models/gemini-1.5-flash-8b")
 # Import necessary libraries
 
 # Set up Streamlit page configuration
@@ -271,4 +271,84 @@ with st.container():
                 st.write(response.text)
             except Exception as e:
                 st.error(f"❌ Gemini AI Error: {e}")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+with st.container():
+    st.markdown("<div class='block-style'>", unsafe_allow_html=True)
+    st.subheader("Task Priority Distribution")
+    if 'Priority' in tasks.columns:
+        fig = px.pie(tasks, names='Priority', title="Task Priority Breakdown", hole=0.3)
+        st.plotly_chart(fig)
+    else:
+        st.warning("⚠️ 'Priority' column not found in tasks.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+with st.container():
+    st.markdown("<div class='block-style'>", unsafe_allow_html=True)
+    st.subheader("🧑‍💻 User Performance Tracker")
+
+    tasks = load_tasks()
+    if not tasks.empty:
+        task_users = tasks[["AssignedTo", "Status"]].copy()
+
+        summary = task_users.groupby(["AssignedTo", "Status"]).size().unstack(fill_value=0).reset_index()
+
+        summary = summary.rename(columns={
+            "AssignedTo": "Username",
+            "Completed": "CompletedTasks",
+            "Pending": "PendingTasks",
+            "In Progress": "InProgressTasks"
+        })
+
+        # Ensure all expected columns are present
+        for col in ["CompletedTasks", "PendingTasks", "InProgressTasks"]:
+            if col not in summary.columns:
+                summary[col] = 0
+
+        summary["CurrentTasks"] = summary["PendingTasks"] + summary["InProgressTasks"]
+        summary["TotalTasks"] = summary[["CompletedTasks", "PendingTasks", "InProgressTasks"]].sum(axis=1)
+        summary["BehaviourScore"] = ((summary["CompletedTasks"] / summary["TotalTasks"]) * 100).round(2)
+
+        # Assign colored tags to BehaviourScore
+        def score_tag(score):
+            if score >= 80:
+                return f"🟢 {score}%"
+            elif score >= 50:
+                return f"🟡 {score}%"
+            else:
+                return f"🔴 {score}%"
+
+        summary["BehaviourScoreTag"] = summary["BehaviourScore"].apply(score_tag)
+
+        # Sort by BehaviourScore descending
+        summary = summary.sort_values(by="BehaviourScore", ascending=False)
+
+        # 🎯 Display Metrics Table
+        st.markdown("### 📋 Performance Metrics Table")
+        st.dataframe(
+            summary[["Username", "CompletedTasks", "PendingTasks", "InProgressTasks", "CurrentTasks", "BehaviourScoreTag"]],
+            use_container_width=True
+        )
+
+        # 📊 Bar Chart: Completed Tasks
+        st.markdown("### 📊 Completed Tasks Per User")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        fig, ax = plt.subplots(figsize=(3,3))  # Smaller graph size
+        sns.barplot(data=summary, x="Username", y="CompletedTasks", palette="Blues_d", ax=ax)
+        ax.set_title("✅ Completed Tasks by User", fontsize=12)
+        ax.set_ylabel("Completed")
+        ax.set_xlabel("User")
+        plt.xticks(rotation=0, fontsize=10)
+
+        # Center the graph using columns
+        left, center, right = st.columns([1, 2, 1])
+        with center:
+            st.pyplot(fig)
+
+
+    else:
+        st.warning("⚠️ No tasks available.")
     st.markdown("</div>", unsafe_allow_html=True)
