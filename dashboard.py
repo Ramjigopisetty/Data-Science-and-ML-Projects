@@ -12,17 +12,12 @@ import json
 
 
 # Set page configuration
-# 🔐 Gemini AI API Setup
-with open("config.json") as f:
-    config = json.load(f)
-
+# 🔐 Gemini AI API Setup# 🔐 Gemini AI API Setup
 api_key = st.secrets["GEMINI_API_KEY"]
-genai.configure(api_key=config["GEMINI_API_KEY"])
-model = genai.GenerativeModel("models/gemini-1.5-flash")
+genai.configure(api_key=api_key)
 
-models = genai.list_models()
-for m in models:
-    print(m.name)
+model = genai.GenerativeModel("models/gemini-1.5-flash")
+# Import necessary libraries
 
 # Set up Streamlit page configuration
 st.set_page_config(page_title="AI Task Management", layout="wide", page_icon="📘")
