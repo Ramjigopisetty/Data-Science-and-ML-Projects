@@ -110,89 +110,110 @@ def load_tasks():
 def save_tasks(df):
     df.to_csv(task_file, index=False)
 
+# Session state to control expanders
+if "expanded" not in st.session_state:
+    st.session_state["expanded"] = None
+
+def toggle_expander(name):
+    st.session_state["expanded"] = name if st.session_state["expanded"] != name else None
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("➕ Add Task", use_container_width=True):
+        toggle_expander("add")
+with col2:
+    if st.button("🔄 Update Task Status" , use_container_width=True):
+        toggle_expander("update")
+with col3:
+    if st.button("🗑️ Delete Task", use_container_width=True):
+        toggle_expander("delete")
+
 # 🔽 EXPANDER: ADD NEW TASK
-with st.expander("➕ Add New Task", expanded=False):
-    st.markdown("<div class='expander-header'>Enter new task details:</div>", unsafe_allow_html=True)
-    with st.form("add_task_form"):
-        col1, col2 = st.columns(2)
+if st.session_state["expanded"] == "add":
+    with st.expander("➕ Add New Task", expanded=True):
+        # 🔽 Paste your FULL "Add Task" form code here
+        st.markdown("<div class='expander-header'>Enter new task details:</div>", unsafe_allow_html=True)
+        with st.form("add_task_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                description = st.text_input("📝 Task Description")
+                deadline = st.date_input("📅 Deadline")
+            with col2:
+                assigned_to = st.text_input("👤 Assigned To")
+            status = st.selectbox("📌 Status", ["Pending", "In Progress", "Completed"])
+            submit_add = st.form_submit_button("Add Task")
 
-        with col1:
-            description = st.text_input("📝 Task Description")
-            deadline = st.date_input("📅 Deadline")
+            if submit_add:
+                if description.strip() == "":
+                    st.warning("⚠️ Description is required.")
+                elif deadline < date.today():
+                    st.warning("⚠️ Deadline cannot be in the past.")
+                else:
+                    try:
+                        prompt = f"""
+                        You are a helpful assistant classifying task priority. 
+                        Task description: "{description}"
+                        Choose only one of these categories: High, Medium, or Low.
+                        Reply with just the priority label.
+                        """
+                        response = model.generate_content(textwrap.dedent(prompt))
+                        priority = response.text.strip()
+                    except Exception as e:
+                        st.error(f"Gemini AI Error: {e}")
+                        priority = "Medium"  # fallback
 
-        with col2:
-            assigned_to = st.text_input("👤 Assigned To")
-
-        status = st.selectbox("📌 Status", ["Pending", "In Progress", "Completed"])
-        submit_add = st.form_submit_button("Add Task")
-
-        if submit_add:
-            if description.strip() == "":
-                st.warning("⚠️ Description is required.")
-            elif deadline < date.today():
-                st.warning("⚠️ Deadline cannot be in the past.")
-            else:
-                try:
-                    prompt = f"""
-                    You are a helpful assistant classifying task priority. 
-                    Task description: "{description}"
-                    Choose only one of these categories: High, Medium, or Low.
-                    Reply with just the priority label.
-                    """
-                    response = model.generate_content(textwrap.dedent(prompt))
-                    priority = response.text.strip()
-                except Exception as e:
-                    st.error(f"Gemini AI Error: {e}")
-                    priority = "Medium"  # fallback
-
-                tasks = load_tasks()
-                next_id = int(tasks["TaskID"].max()) + 1 if not tasks.empty else 1
-                new_row = pd.DataFrame([{
-                    "TaskID": next_id,
-                    "Description": description,
-                    "Deadline": str(deadline),
-                    "AssignedTo": assigned_to,
-                    "Priority": priority,
-                    "Status": status
-                }])
-                tasks = pd.concat([tasks, new_row], ignore_index=True)
-                save_tasks(tasks)
-                st.success(f"✅ Task added with AI-priority: {priority}!")
+                    tasks = load_tasks()
+                    next_id = int(tasks["TaskID"].max()) + 1 if not tasks.empty else 1
+                    new_row = pd.DataFrame([{
+                        "TaskID": next_id,
+                        "Description": description,
+                        "Deadline": str(deadline),
+                        "AssignedTo": assigned_to,
+                        "Priority": priority,
+                        "Status": status
+                    }])
+                    tasks = pd.concat([tasks, new_row], ignore_index=True)
+                    save_tasks(tasks)
+                    st.success(f"✅ Task added with AI-priority: {priority}!")
 
 # 🔽 EXPANDER: UPDATE TASK STATUS
-with st.expander("🔄 Update Task Status", expanded=False):
-    st.markdown("<div class='expander-header'>Select a task to update:</div>", unsafe_allow_html=True)
-    tasks = load_tasks()
-    if not tasks.empty:
-        task_options = [f"{row['Description']} (ID: {int(row['TaskID'])})" for _, row in tasks.iterrows()]
-        selected = st.selectbox("📋 Select Task", task_options)
-        new_status = st.selectbox("🔁 New Status", ["Pending", "In Progress", "Completed"])
-        update_btn = st.button("Update Status")
-
-        if update_btn:
-            task_id = int(selected.split("(ID:")[1].replace(")", "").strip())
-            tasks.loc[tasks["TaskID"] == task_id, "Status"] = new_status
-            save_tasks(tasks)
-            st.success("✅ Status updated!")
-    else:
-        st.info("ℹ️ No tasks available.")
+elif st.session_state["expanded"] == "update":
+    with st.expander("🔄 Update Task Status", expanded=True):
+        # 🔽 Paste your FULL update task logic here
+        st.markdown("<div class='expander-header'>Select a task to update:</div>", unsafe_allow_html=True)
+        tasks = load_tasks()
+        if not tasks.empty:
+            task_options = [f"{row['Description']} (ID: {int(row['TaskID'])})" for _, row in tasks.iterrows()]
+            selected = st.selectbox("📋 Select Task", task_options)
+            new_status = st.selectbox("🔁 New Status", ["Pending", "In Progress", "Completed"])
+            update_btn = st.button("Update Status")
+            if update_btn:
+                task_id = int(selected.split("(ID:")[1].replace(")", "").strip())
+                tasks.loc[tasks["TaskID"] == task_id, "Status"] = new_status
+                save_tasks(tasks)
+                st.success("✅ Status updated!")
+        else:
+            st.info("ℹ️ No tasks available.")
 
 # 🔽 EXPANDER: DELETE TASK
-with st.expander("🗑️ Delete Task", expanded=False):
-    st.markdown("<div class='expander-header'>Select a task to delete:</div>", unsafe_allow_html=True)
-    tasks = load_tasks()
-    if not tasks.empty:
-        delete_options = [f"{row['Description']} (ID: {int(row['TaskID'])})" for _, row in tasks.iterrows()]
-        selected = st.selectbox("🗂️ Choose Task", delete_options, key="delete")
-        delete_btn = st.button("Delete Task")
+elif st.session_state["expanded"] == "delete":
+    with st.expander("🗑️ Delete Task", expanded=True):
+        # 🔽 Paste your FULL delete task logic here
+        st.markdown("<div class='expander-header'>Select a task to delete:</div>", unsafe_allow_html=True)
+        tasks = load_tasks()
+        if not tasks.empty:
+            delete_options = [f"{row['Description']} (ID: {int(row['TaskID'])})" for _, row in tasks.iterrows()]
+            selected = st.selectbox("🗂️ Choose Task", delete_options, key="delete")
+            delete_btn = st.button("Delete Task")
+            if delete_btn:
+                task_id = int(selected.split("(ID:")[1].replace(")", "").strip())
+                tasks = tasks[tasks["TaskID"] != task_id]
+                save_tasks(tasks)
+                st.success("✅ Task deleted!")
+        else:
+            st.info("ℹ️ No tasks to delete.")
 
-        if delete_btn:
-            task_id = int(selected.split("(ID:")[1].replace(")", "").strip())
-            tasks = tasks[tasks["TaskID"] != task_id]
-            save_tasks(tasks)
-            st.success("✅ Task deleted!")
-    else:
-        st.info("ℹ️ No tasks to delete.")
 
 
 
@@ -228,20 +249,6 @@ with st.container():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Priority Pie Chart
-
-    # Prediction Accuracy
-    with st.container():
-        st.markdown("<div class='block-style'>", unsafe_allow_html=True)
-        st.subheader("Prediction Accuracy")
-        if {'Priority', 'PredictedPriority'}.issubset(predictions.columns):
-            correct = (predictions['Priority'] == predictions['PredictedPriority']).sum()
-            total = len(predictions)
-            accuracy = correct / total * 100
-            st.success(f"✅ Model Prediction Accuracy: {accuracy:.2f}%")
-        else:
-            st.warning("⚠️ Required columns 'Priority' and 'PredictedPriority' not found.")
-        st.markdown("</div>", unsafe_allow_html=True)
 # 🔮 Gemini AI Assistant Section
 with st.container():
     st.markdown("<div class='block-style'>", unsafe_allow_html=True)
