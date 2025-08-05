@@ -336,7 +336,7 @@ with st.container():
         st.markdown("### 📊 Completed Tasks Per User")
         st.markdown("<br>", unsafe_allow_html=True)
 
-        fig, ax = plt.subplots(figsize=(3,3))  # Smaller graph size
+        fig, ax = plt.subplots(figsize=(6,6))#Smaller graph size
         sns.barplot(data=summary, x="Username", y="CompletedTasks", palette="Blues_d", ax=ax)
         ax.set_title("✅ Completed Tasks by User", fontsize=12)
         ax.set_ylabel("Completed")
