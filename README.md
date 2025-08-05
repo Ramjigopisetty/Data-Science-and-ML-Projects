@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div>
   <h2>📘 AI-Powered Task Management System</h2>
   <pre id="readme-content" style="background-color:#f0f0f0; padding:1em; border-radius:8px; overflow-x:auto; white-space:pre-wrap;">
@@ -71,3 +72,7 @@ For `tasks_cleaned.csv`:
     });
   }
 </script>
+=======
+# Data-Science-and-ML-Projects
+ENTERPRISE-LEVEL PROJECTS — DATA SCIENCE &amp; MACHINE LEARNING :- All projects here are considered to be under domain of data science and ML
+>>>>>>> 46243cd2d488d1f67b1010c11e315228a9e9dad2
