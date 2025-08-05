@@ -1,0 +1,50 @@
+config.json
+__pycache__
+.streamlit/secrets.toml
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# VSCode or IDE-specific settings
+.vscode/
+.idea/
+
+# Jupyter Notebooks checkpoints (if any)
+.ipynb_checkpoints/
+
+# Environment / Dependency files
+.env
+.venv/
+env/
+venv/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Python virtual environment packages
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Secrets & Configs
+config.json
+secrets.toml
+
+# Streamlit specific
+.streamlit/config.toml
+.streamlit/secrets.toml
+
+# Data and temporary files
+*.csv
+*.xlsx
+*.db
+*.sqlite3
+
+# PyInstaller
+dist/
+build/
+*.spec

@@ -15,7 +15,8 @@ import json
 # 🔐 Gemini AI API Setup
 with open("config.json") as f:
     config = json.load(f)
-    
+
+api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=config["GEMINI_API_KEY"])
 model = genai.GenerativeModel("models/gemini-1.5-flash")
 
