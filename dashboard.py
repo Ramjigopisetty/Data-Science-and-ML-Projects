@@ -6,8 +6,24 @@ import matplotlib.pyplot as plt
 import os
 from datetime import date
 import streamlit.components.v1 as components
+import google.generativeai as genai
+import textwrap
+import json
+
 
 # Set page configuration
+# 🔐 Gemini AI API Setup
+with open("config.json") as f:
+    config = json.load(f)
+    
+genai.configure(api_key=config["GEMINI_API_KEY"])
+model = genai.GenerativeModel("models/gemini-1.5-flash")
+
+models = genai.list_models()
+for m in models:
+    print(m.name)
+
+# Set up Streamlit page configuration
 st.set_page_config(page_title="AI Task Management", layout="wide", page_icon="📘")
 
 # Custom CSS for animations and styling
@@ -57,14 +73,12 @@ st.markdown("<div class='animated-title'>🧠 AI-Powered Task Management Dashboa
 
 
 
-# Load data files
+# 🔽 FILE PATHS
 task_file = "tasks_cleaned.csv"
 user_file = "user_data.csv"
 prediction_file = "model_predictions.csv"
 
-# 🔽 COMBINED CRUD SECTION: ADD / UPDATE / DELETE TASKS
-
-# 🔽 CSS Styling
+# 🔽 CUSTOM CSS
 st.markdown("""
 <style>
 .expander-header {
@@ -91,7 +105,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🔽 Functions
+# 🔽 LOAD DATA
 def load_tasks():
     if os.path.exists(task_file):
         return pd.read_csv(task_file)
@@ -100,7 +114,7 @@ def load_tasks():
 def save_tasks(df):
     df.to_csv(task_file, index=False)
 
-# 🔽 EXPANDER 1: ADD NEW TASK
+# 🔽 EXPANDER: ADD NEW TASK
 with st.expander("➕ Add New Task", expanded=False):
     st.markdown("<div class='expander-header'>Enter new task details:</div>", unsafe_allow_html=True)
     with st.form("add_task_form"):
@@ -112,7 +126,6 @@ with st.expander("➕ Add New Task", expanded=False):
 
         with col2:
             assigned_to = st.text_input("👤 Assigned To")
-            priority = st.selectbox("🔥 Priority", ["High", "Medium", "Low"])
 
         status = st.selectbox("📌 Status", ["Pending", "In Progress", "Completed"])
         submit_add = st.form_submit_button("Add Task")
@@ -123,6 +136,19 @@ with st.expander("➕ Add New Task", expanded=False):
             elif deadline < date.today():
                 st.warning("⚠️ Deadline cannot be in the past.")
             else:
+                try:
+                    prompt = f"""
+                    You are a helpful assistant classifying task priority. 
+                    Task description: "{description}"
+                    Choose only one of these categories: High, Medium, or Low.
+                    Reply with just the priority label.
+                    """
+                    response = model.generate_content(textwrap.dedent(prompt))
+                    priority = response.text.strip()
+                except Exception as e:
+                    st.error(f"Gemini AI Error: {e}")
+                    priority = "Medium"  # fallback
+
                 tasks = load_tasks()
                 next_id = int(tasks["TaskID"].max()) + 1 if not tasks.empty else 1
                 new_row = pd.DataFrame([{
@@ -135,10 +161,9 @@ with st.expander("➕ Add New Task", expanded=False):
                 }])
                 tasks = pd.concat([tasks, new_row], ignore_index=True)
                 save_tasks(tasks)
-                st.success("✅ Task added successfully!")
-                st.rerun()
+                st.success(f"✅ Task added with AI-priority: {priority}!")
 
-# 🔽 EXPANDER 2: UPDATE TASK STATUS
+# 🔽 EXPANDER: UPDATE TASK STATUS
 with st.expander("🔄 Update Task Status", expanded=False):
     st.markdown("<div class='expander-header'>Select a task to update:</div>", unsafe_allow_html=True)
     tasks = load_tasks()
@@ -153,11 +178,10 @@ with st.expander("🔄 Update Task Status", expanded=False):
             tasks.loc[tasks["TaskID"] == task_id, "Status"] = new_status
             save_tasks(tasks)
             st.success("✅ Status updated!")
-            st.rerun()
     else:
         st.info("ℹ️ No tasks available.")
 
-# 🔽 EXPANDER 3: DELETE TASK
+# 🔽 EXPANDER: DELETE TASK
 with st.expander("🗑️ Delete Task", expanded=False):
     st.markdown("<div class='expander-header'>Select a task to delete:</div>", unsafe_allow_html=True)
     tasks = load_tasks()
@@ -171,9 +195,9 @@ with st.expander("🗑️ Delete Task", expanded=False):
             tasks = tasks[tasks["TaskID"] != task_id]
             save_tasks(tasks)
             st.success("✅ Task deleted!")
-            st.rerun()
     else:
         st.info("ℹ️ No tasks to delete.")
+
 
 
 
@@ -222,3 +246,26 @@ with st.container():
         else:
             st.warning("⚠️ Required columns 'Priority' and 'PredictedPriority' not found.")
         st.markdown("</div>", unsafe_allow_html=True)
+# 🔮 Gemini AI Assistant Section
+with st.container():
+    st.markdown("<div class='block-style'>", unsafe_allow_html=True)
+    st.subheader("💡 Ask Gemini AI About Your Tasks")
+
+    # Chat-style interface
+    user_query = st.text_area("🧠 Ask something like:", "What are the most urgent tasks to complete today?")
+    if st.button("💬 Ask Gemini"):
+        with st.spinner("Thinking..."):
+            try:
+                prompt = f"""
+                You are an assistant for a task manager app. The user has provided the following tasks:
+                {tasks_sorted.to_string(index=False)}
+
+                Based on this, answer the question:
+                {user_query}
+                """
+                response = model.generate_content(textwrap.dedent(prompt))
+                st.success("🧠 Gemini AI Says:")
+                st.write(response.text)
+            except Exception as e:
+                st.error(f"❌ Gemini AI Error: {e}")
+    st.markdown("</div>", unsafe_allow_html=True)
