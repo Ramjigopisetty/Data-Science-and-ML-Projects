@@ -9,6 +9,7 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 import textwrap
 import json
+import matplotlib.ticker as ticker
 
 
 # Set page configuration
@@ -331,24 +332,29 @@ with st.container():
             summary[["Username", "CompletedTasks", "PendingTasks", "InProgressTasks", "CurrentTasks", "BehaviourScoreTag"]],
             use_container_width=True
         )
+        
 
         # 📊 Bar Chart: Completed Tasks
         st.markdown("### 📊 Completed Tasks Per User")
         st.markdown("<br>", unsafe_allow_html=True)
 
-        fig, ax = plt.subplots(figsize=(6,6))#Smaller graph size
+        fig, ax = plt.subplots(figsize=(6, 6))  # Smaller graph size
         sns.barplot(data=summary, x="Username", y="CompletedTasks", palette="Blues_d", ax=ax)
-        ax.set_title("✅ Completed Tasks by User", fontsize=12)
+        ax.set_title("Completed Tasks by User", fontsize=12)
         ax.set_ylabel("Completed")
         ax.set_xlabel("User")
         plt.xticks(rotation=0, fontsize=10)
 
-        # Center the graph using columns
+        # ✅ Set Y-axis scale dynamically
+        max_value = summary["CompletedTasks"].max()
+
+        # If max is small (e.g., 1-9), use step = 1, otherwise step = 10
+        step = 1 if max_value <= 10 else 10
+        ax.set_ylim(0, ((max_value // step) + 1) * step)  # Round up to next multiple of step
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(step))
+
+        # ✅ Center the graph
         left, center, right = st.columns([1, 2, 1])
         with center:
             st.pyplot(fig)
 
-
-    else:
-        st.warning("⚠️ No tasks available.")
-    st.markdown("</div>", unsafe_allow_html=True)

@@ -1,6 +1,8 @@
 TaskID,Description,Deadline,AssignedTo,Priority,Status
 2,Prepare the Presentation,2025-08-08,Abhijeet,High,In Progress
-3,Deliver the Project,2025-08-05,Ram vardhan,High,In Progress
+3,Deliver the Project,2025-08-05,Ram vardhan,High,Pending
 4,Buy birthday dress,2025-08-08,Abhijeet,Medium,Pending
 5,to go to general store,2025-08-05,ram,Medium,Pending
 6,To Prepare Prerequisites,2025-08-06,Sruthi,Medium,In Progress
+7,To Prepare Notes,2025-08-05,Sruthi,Low,Completed
+8,Buy Notes,2025-08-05,Ram vardhan,Low,Completed

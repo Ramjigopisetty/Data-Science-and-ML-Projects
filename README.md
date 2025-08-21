@@ -1,78 +1,107 @@
-<<<<<<< HEAD
-<div>
-  <h2>📘 AI-Powered Task Management System</h2>
-  <pre id="readme-content" style="background-color:#f0f0f0; padding:1em; border-radius:8px; overflow-x:auto; white-space:pre-wrap;">
-🚀 Intelligent Task Management System using NLP + ML
+# 🧠 AI Task Manager  
 
-This project automatically classifies, prioritizes, and assigns tasks to users based on their behavior, deadlines, and workloads.
+An intelligent task management system powered by **machine learning** and **data-driven analytics**.  
+This project helps assign, prioritize, and track tasks for users automatically using AI models, dashboards, and performance trackers.  
 
-🧠 Features:
-- Smart Task Assignment using ML and deadline/workload/behavior
-- Dashboard with Task Table, Priority Pie Chart, Performance Graph
-- Model Prediction Accuracy check
-- Manual Task Entry + Edit
-- Auto Assign + Reset Button
-- Summary: Total Tasks & Overdue Tasks
-- Future-Ready: Trello/Jira API Ready
+---
 
-🛠️ Technologies Used:
-- Python (Pandas, Streamlit, Matplotlib, Seaborn)
-- Machine Learning (Classification)
-- Data Preprocessing & EDA
-- CSV-Based Simulated Data (Task + User + Model)
+## 🚀 Features  
+- 📊 **Task Dashboard** – Interactive dashboard to visualize tasks and performance.  
+- 🤖 **Smart Task Assignment** – Automatically assigns tasks based on user performance and workload.  
+- 🧹 **EDA & Cleaning** – Preprocessing and exploratory data analysis of task datasets.  
+- 🏆 **Priority Model** – Machine learning model (`priority_model.pkl`) to classify and prioritize tasks.  
+- 📈 **Performance Tracking** – Monitors user productivity with historical data.  
+- 🔍 **Prediction System** – Predicts task categories using trained ML models (`vectorizer.pkl`).  
 
-📁 File Structure:
-- `dashboard.py`: Streamlit main dashboard
-- `smart_assigner.py`: ML-based assignment logic
-- `task_classifier.py`: Trained model logic
-- `tasks_cleaned.csv`: Task dataset
-- `user_data.csv`: User behavior/workload data
-- `model_predictions.csv`: Priority prediction results
+---
 
-🖥️ Run Locally:
-1. Clone repo or copy files
-2. Install requirements: `pip install streamlit pandas matplotlib seaborn`
-3. Run: `streamlit run dashboard.py`
+## 📂 Project Structure  
 
-📌 Manual Entry Format:
-For `user_data.csv`:
-- Username, CurrentTasks, CompletedTasks, PendingTasks, BehaviourScore
+```
+AI_Task_Manager_Project/
+│── assign_tasks.py              # Assign tasks to users
+│── dashboard.py                 # Main dashboard for visualization
+│── eda_analysis.py              # Exploratory data analysis
+│── eda_cleaning.py              # Dataset cleaning script
+│── predict_task.py              # Predict tasks using ML model
+│── smart_assigner.py            # AI-powered task assigner
+│── task_classifier.py           # ML model for task classification
+│── task_dashboard.py            # Dashboard for task insights
+│── task_dataset.py              # Dataset preparation script
+│── task_predictor.py            # Task prediction logic
+│── track_performance.py         # Track user performance
+│── update_user_performance.py   # Update and manage user performance
+│── user_tracker.py              # User activity tracking
+│
+├── tasks.csv                    # Raw task dataset
+├── tasks_cleaned.csv            # Cleaned dataset
+├── users.csv                    # User details
+├── user_data.csv                # User activity data
+├── model_predictions.csv        # Model output
+│
+├── priority_model.pkl           # Trained ML model for prioritization
+├── vectorizer.pkl               # Feature vectorizer for text
+│
+├── config.json                  # Project configurations
+├── requirements.txt             # Dependencies
+├── .gitignore                   # Git ignore rules
+└── README.md                    # Project documentation
+```
 
-For `tasks_cleaned.csv`:
-- TaskID, Description, Deadline, AssignedTo, Priority, Status
+---
 
-📊 Dashboard Sections:
-1. Task Assignment Table
-2. Task Priority Distribution
-3. User Performance Tracker
-4. Model Prediction Accuracy
-5. Smart Task Assigner (Auto Assign Button)
-6. Task Editor (Add/Edit)
-7. Summary of Total & Overdue Tasks
+## ⚙️ Installation  
 
-🖼️ Screenshot:
-(Insert screenshot here showing dashboard)
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/your-username/AI_Task_Manager_Project.git
+   cd AI_Task_Manager_Project
+   ```
 
-🚧 Future Scope:
-- Trello/Jira API integration
-- Notification system
-- Authentication & multi-user support
-- Real-time updates
+2. Install dependencies:  
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-📫 Made with ❤️
-  </pre>
-  <button onclick="copyReadme()" style="margin-top: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">📋 Copy README</button>
-</div>
+3. (Optional) Set up configuration in `config.json`.  
 
-<script>
-  function copyReadme() {
-    const content = document.getElementById("readme-content").innerText;
-    navigator.clipboard.writeText(content).then(() => {
-      alert("README copied to clipboard!");
-    });
-  }
-</script>
-=======
-# Data-Science-and-ML-Projects
-ENTERPRISE-LEVEL PROJECTS — DATA SCIENCE &amp; MACHINE LEARNING :- All projects here are considered to be under domain of data science and ML
->>>>>>> 46243cd2d488d1f67b1010c11e315228a9e9dad2
+---
+
+## ▶️ Usage  
+
+Run scripts as needed:  
+
+- **Launch Dashboard**  
+  ```bash
+  python dashboard.py
+  ```
+
+- **Assign Tasks Automatically**  
+  ```bash
+  python assign_tasks.py
+  ```
+
+- **Predict Task Category**  
+  ```bash
+  python predict_task.py
+  ```
+
+- **Track User Performance**  
+  ```bash
+  python track_performance.py
+  ```
+
+---
+
+## 📊 Example Workflows  
+- Clean dataset → Train model → Predict tasks → Assign automatically → Track performance.  
+
+---
+
+## 📜 License  
+This project is open-source. You can use and modify it under the terms of your chosen license.  
+
+---
+
+## 🙌 Contributions  
+Feel free to fork the repo, open issues, and submit pull requests.  
